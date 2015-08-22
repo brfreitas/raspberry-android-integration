@@ -44,9 +44,9 @@ func getleds(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if statusLed2 == true {
-		item1 = Item{"2", "Led 2", "on"}
+		item2 = Item{"2", "Led 2", "on"}
 	} else {
-		item1 = Item{"2", "Led 2", "off"}
+		item2 = Item{"2", "Led 2", "off"}
 	}
 
 	itens = []Item{item1, item2}
