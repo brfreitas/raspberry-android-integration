@@ -145,6 +145,8 @@ func test(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	log.Printf("Starting on port: 8088...")
+
 	mux := routes.New()
 	//get led
 	mux.Get("/led/", getleds)
@@ -153,6 +155,9 @@ func main() {
 	mux.Post("/led/", test)
 	//mux.Del("/user/:uid", deleteuser)
 	//mux.Put("/user/", adduser)
+
+	log.Printf("Started on port: 8088...")
+
 	http.Handle("/", mux)
 	http.ListenAndServe(":8088", nil)
 }
