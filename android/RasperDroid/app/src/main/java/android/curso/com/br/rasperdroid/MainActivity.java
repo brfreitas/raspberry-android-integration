@@ -8,6 +8,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,13 +20,14 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 
-public class MainActivity extends Activity
+public class MainActivity extends FragmentActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private DispositivosFragment dispositivosFragment;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -39,6 +41,8 @@ public class MainActivity extends Activity
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
+        dispositivosFragment = new DispositivosFragment();
+        dispositivosFragment.setArguments(savedInstanceState);
         mTitle = getTitle();
 
         // Set up the drawer.
@@ -52,7 +56,7 @@ public class MainActivity extends Activity
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                .replace(R.id.container, DispositivosFragment.newInstance(position + 1))
                 .commit();
     }
 
@@ -60,12 +64,6 @@ public class MainActivity extends Activity
         switch (number) {
             case 1:
                 mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
                 break;
         }
     }
