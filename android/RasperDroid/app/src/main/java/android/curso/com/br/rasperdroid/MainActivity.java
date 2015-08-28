@@ -5,10 +5,15 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,6 +23,11 @@ import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class MainActivity extends FragmentActivity
@@ -28,6 +38,8 @@ public class MainActivity extends FragmentActivity
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private DispositivosFragment dispositivosFragment;
+    private String[] dispositivos;
+    private boolean validData;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -53,11 +65,31 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, DispositivosFragment.newInstance(position + 1))
-                .commit();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String value = prefs.getString(ConfiguracoesFragment.KEY_EDIT_TEXT_PREFERENCE, null);
+
+        if(urlValidation(value)) {
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, DispositivosFragment.newInstance(position + 1))
+                    .commit();
+        }else{
+            Toast.makeText(getApplicationContext(), "URL Invalida", Toast.LENGTH_LONG ).show();
+        }
+    }
+
+    private boolean urlValidation(String url){
+        if(url != null && !url.trim().equals("")){
+            return testConnection(url);
+        }else{
+            return false;
+        }
+    }
+
+    private boolean testConnection(String url){
+        WebServiceClient ws = new WebServiceClient();
+        ws.execute(url);
+        return validData;
     }
 
     public void onSectionAttached(int number) {
@@ -98,6 +130,12 @@ public class MainActivity extends FragmentActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            mTitle = getString(R.string.action_settings);
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, new ConfiguracoesFragment())
+                    .commit();
+            restoreActionBar();
             return true;
         }
 
@@ -143,5 +181,44 @@ public class MainActivity extends FragmentActivity
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
+
+    private class WebServiceClient extends AsyncTask<String, Void, String[]> {
+
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected String[] doInBackground(String... params) {
+            String path = params[0];
+            String json = HttpRequest.get(path).body();
+            String[] dispositivos = null;
+            try {
+                JSONArray jsonArray = new JSONArray(json);
+                dispositivos = new String[jsonArray.length()];
+                for(int i = 0; i < jsonArray.length(); i++){
+                    JSONObject jsonObj = jsonArray.getJSONObject(i);
+                    dispositivos[i] = jsonObj.getString("Descricao");
+                }
+            } catch (JSONException e) {
+                return null;
+            }
+            return dispositivos;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(String[] strings) {
+            progressDialog.dismiss();
+            dispositivos = strings;
+            if(dispositivos != null){
+                validData = true;
+            }
+        }
+    }
+
 
 }
