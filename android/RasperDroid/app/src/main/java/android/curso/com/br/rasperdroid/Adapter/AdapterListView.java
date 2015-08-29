@@ -3,10 +3,12 @@ package android.curso.com.br.rasperdroid.Adapter;
 import android.content.Context;
 import android.curso.com.br.rasperdroid.R;
 import android.curso.com.br.rasperdroid.model.Dispositivo;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -20,8 +22,8 @@ public class AdapterListView extends BaseAdapter {
     private List<Dispositivo> itens;
 
     public AdapterListView(Context context, List<Dispositivo> itens) {
-    this.itens = itens;
-    mInflater = LayoutInflater.from(context); }
+        this.itens = itens;
+        mInflater = LayoutInflater.from(context); }
 
 
     @Override
@@ -40,8 +42,8 @@ public class AdapterListView extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup){
-        ItemSuporte itemHolder;
+    public View getView(final int i, View view, ViewGroup viewGroup){
+        final ItemSuporte itemHolder;
         //se a view estiver nula (nunca criada), inflamos o layout nela.
         if (view == null) {
             view = mInflater.inflate(R.layout.dispositivo_list_item, null);
@@ -52,9 +54,20 @@ public class AdapterListView extends BaseAdapter {
         } else {
             itemHolder = (ItemSuporte) view.getTag();
         }
-        Dispositivo item = itens.get(i);
+        final Dispositivo item = itens.get(i);
         itemHolder.description.setText(item.getDescription());
-        itemHolder.state.setChecked(Dispositivo.State.ON.equals(item.getState())?true:false);
+        itemHolder.state.setChecked(Dispositivo.State.ON.equals(item.getState()) ? true : false);
+        itemHolder.state.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {                ;
+                if(((Switch)v).isChecked()){
+                    Log.i("######", "ACENDE "+item.getId());
+                }else{
+                    Log.i("######", "APAGA "+item.getId());
+                }
+            }
+        });
+
         return view;
     }
 
