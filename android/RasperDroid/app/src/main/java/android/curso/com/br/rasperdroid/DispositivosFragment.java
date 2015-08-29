@@ -1,11 +1,13 @@
 package android.curso.com.br.rasperdroid;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.curso.com.br.rasperdroid.Adapter.AdapterListView;
 import android.curso.com.br.rasperdroid.model.Dispositivo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,8 +54,10 @@ public class DispositivosFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_dispositivos, container, false);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String url = prefs.getString(ConfiguracoesFragment.KEY_EDIT_TEXT_PREFERENCE, null);
         listview = (ListView) rootView.findViewById(R.id.listView);
-        listview.setAdapter(new AdapterListView(getActivity(), ds));
+        listview.setAdapter(new AdapterListView(getActivity(), ds, url));
         return rootView;
     }
 
