@@ -1,0 +1,13 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content" android:layout_width="wrap_content">
+
+
+        <EditTextPreference
+            android:key="web_service_text_preference"
+            android:title="@string/title_web_service_preference"
+            android:summary="@string/summary_web_service_preference"
+            android:dialogTitle="@string/dialog_web_service_preference" />
+
+
+
+</PreferenceScreen>
