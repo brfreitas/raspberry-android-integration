@@ -8,6 +8,7 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.curso.com.br.rasperdroid.model.Dispositivo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +30,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends FragmentActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -38,13 +42,14 @@ public class MainActivity extends FragmentActivity
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private DispositivosFragment dispositivosFragment;
-    private String[] dispositivos;
+    private List<Dispositivo> dispositivos;
     private boolean validData;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    private int position;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,30 +71,14 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String value = prefs.getString(ConfiguracoesFragment.KEY_EDIT_TEXT_PREFERENCE, null);
-
-        if(urlValidation(value)) {
-            FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction()
-                    .replace(R.id.container, DispositivosFragment.newInstance(position + 1))
-                    .commit();
+        String url = prefs.getString(ConfiguracoesFragment.KEY_EDIT_TEXT_PREFERENCE, null);
+        this.position = position;
+        if(url != null && !url.trim().equals("")){
+            WebServiceClient ws = new WebServiceClient();
+            ws.execute(url);
         }else{
             Toast.makeText(getApplicationContext(), "URL Invalida", Toast.LENGTH_LONG ).show();
         }
-    }
-
-    private boolean urlValidation(String url){
-        if(url != null && !url.trim().equals("")){
-            return testConnection(url);
-        }else{
-            return false;
-        }
-    }
-
-    private boolean testConnection(String url){
-        WebServiceClient ws = new WebServiceClient();
-        ws.execute(url);
-        return validData;
     }
 
     public void onSectionAttached(int number) {
@@ -182,23 +171,31 @@ public class MainActivity extends FragmentActivity
         }
     }
 
-    private class WebServiceClient extends AsyncTask<String, Void, String[]> {
+    private class WebServiceClient extends AsyncTask<String, Void, List<Dispositivo>> {
 
         private ProgressDialog progressDialog;
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected List<Dispositivo> doInBackground(String... params) {
             String path = params[0];
             String json = HttpRequest.get(path).body();
-            String[] dispositivos = null;
+            List<Dispositivo> dispositivos = null;
             try {
                 JSONArray jsonArray = new JSONArray(json);
-                dispositivos = new String[jsonArray.length()];
+                dispositivos = new ArrayList<>();
                 for(int i = 0; i < jsonArray.length(); i++){
                     JSONObject jsonObj = jsonArray.getJSONObject(i);
-                    dispositivos[i] = jsonObj.getString("Descricao");
+                    String desc = jsonObj.getString("Descricao");
+                    String id = jsonObj.getString("Id");
+                    String status = jsonObj.getString("Status");
+                    Dispositivo dispositivo = new Dispositivo();
+                    dispositivo.setDescription(desc);
+                    dispositivo.setId(Long.parseLong(id));
+                    dispositivo.setState(Dispositivo.State.valueOf(status));
+                    dispositivos.add(dispositivo);
                 }
             } catch (JSONException e) {
+                Toast.makeText(getApplicationContext(), "URL Invalida", Toast.LENGTH_LONG ).show();
                 return null;
             }
             return dispositivos;
@@ -211,11 +208,14 @@ public class MainActivity extends FragmentActivity
         }
 
         @Override
-        protected void onPostExecute(String[] strings) {
+        protected void onPostExecute(List<Dispositivo> ds) {
             progressDialog.dismiss();
-            dispositivos = strings;
-            if(dispositivos != null){
-                validData = true;
+            dispositivos = ds;
+            if(dispositivos != null) {
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, DispositivosFragment.newInstance(position + 1, dispositivos))
+                        .commit();
             }
         }
     }

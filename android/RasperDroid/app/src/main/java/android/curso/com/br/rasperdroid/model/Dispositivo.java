@@ -4,7 +4,7 @@ package android.curso.com.br.rasperdroid.model;
  * Created by Bruno on 28/08/2015.
  */
 public class Dispositivo {
-    public enum State{ ON, OFF};
+    public enum State{on, off};
     private String description;
     private Long id;
     private State state;

@@ -54,7 +54,7 @@ public class AdapterListView extends BaseAdapter {
         }
         Dispositivo item = itens.get(i);
         itemHolder.description.setText(item.getDescription());
-        itemHolder.state.setChecked(Dispositivo.State.ON.equals(item.getState())?true:false);
+        itemHolder.state.setChecked(Dispositivo.State.on.equals(item.getState())?true:false);
         return view;
     }
 

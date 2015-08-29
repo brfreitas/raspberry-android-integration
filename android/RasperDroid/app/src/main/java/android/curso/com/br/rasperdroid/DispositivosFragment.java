@@ -30,16 +30,18 @@ public class DispositivosFragment extends Fragment {
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
     private ListView listview;
+    private static List<Dispositivo> ds;
 
     /**
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static DispositivosFragment newInstance(int sectionNumber) {
+    public static DispositivosFragment newInstance(int sectionNumber, List<Dispositivo> ds) {
         DispositivosFragment fragment = new DispositivosFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
+        DispositivosFragment.ds = ds;
         return fragment;
     }
 
@@ -50,28 +52,6 @@ public class DispositivosFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_dispositivos, container, false);
-        List<Dispositivo> ds = new ArrayList<>(5);
-        Dispositivo d1 = new Dispositivo();
-        d1.setDescription("Luz 1");
-        d1.setId(1L);
-        d1.setState(Dispositivo.State.OFF);
-        Dispositivo d2 = new Dispositivo();
-        d2.setDescription("Luz 2");
-        d2.setId(2L);
-        d2.setState(Dispositivo.State.ON);
-        Dispositivo d3 = new Dispositivo();
-        d3.setDescription("Luz 3");
-        d3.setId(3L);
-        d3.setState(Dispositivo.State.OFF);
-        Dispositivo d4 = new Dispositivo();
-        d4.setDescription("Luz 4");
-        d4.setId(4L);
-        d4.setState(Dispositivo.State.ON);
-        Dispositivo d5 = new Dispositivo();
-        d5.setDescription("Luz 5");
-        d5.setId(5L);
-        d5.setState(Dispositivo.State.OFF);
-        ds.add(d1);ds.add(d2);ds.add(d3);ds.add(d4);ds.add(d5);
         listview = (ListView) rootView.findViewById(R.id.listView);
         listview.setAdapter(new AdapterListView(getActivity(), ds));
         return rootView;
